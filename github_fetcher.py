@@ -39,25 +39,22 @@ def fetch_pull_requests(repo, max_prs=500):
 
         response = requests.get(url, headers=HEADERS, params=params)
 
-        # Stop if rate limit or error hits
         if response.status_code != 200:
             print(f"Error {response.status_code}: {response.json()}")
             break
 
         data = response.json()
 
-        # No more pages left
         if not data:
             break
 
-        # Only keep MERGED PRs (closed != always merged)
         merged = [pr for pr in data if pr.get("merged_at") is not None]
         prs.extend(merged)
 
         print(f"  Page {page} → {len(merged)} merged PRs found")
 
         page += 1
-        time.sleep(1)  # Be respectful to GitHub API
+        time.sleep(1)  
 
     print(f"Total PRs collected from {repo}: {len(prs)}")
     return prs[:max_prs]
@@ -67,8 +64,7 @@ def extract_pr_features(pr, repo):
     Extracts relevant features from a single PR object.
     Returns a dictionary of features.
     """
-    
-    # Calculate review time in hours
+
     created_at = pd.to_datetime(pr["created_at"])
     merged_at = pd.to_datetime(pr["merged_at"])
     review_time_hours = (merged_at - created_at).total_seconds() / 3600
@@ -103,10 +99,8 @@ def fetch_pr_reviews(repo, pr_number):
     
     reviews = response.json()
     
-    # Count approvals
     approvals = [r for r in reviews if r["state"] == "APPROVED"]
-    
-    # Count unique reviewers who actually left a review
+
     unique_reviewers = set(r["user"]["login"] for r in reviews)
     
     return {
@@ -114,3 +108,32 @@ def fetch_pr_reviews(repo, pr_number):
         "actual_reviewers": len(unique_reviewers)
     }
     
+
+def fetch_ci_status(repo, pr):
+    """
+    Fetches the CI pipeline status for a pull request.
+    Returns 'passed', 'failed', or 'none'.
+    """
+
+    head_sha = pr["head"]["sha"]
+    
+    url = f"https://api.github.com/repos/{repo}/commits/{head_sha}/check-runs"
+    response = requests.get(url, headers=HEADERS)
+    
+    if response.status_code != 200:
+        return "none"
+    
+    data = response.json()
+    check_runs = data.get("check_runs", [])
+    
+    if not check_runs:
+        return "none"
+
+    statuses = [run["conclusion"] for run in check_runs]
+    
+    if "failure" in statuses:
+        return "failed"
+    elif all(s == "success" for s in statuses):
+        return "passed"
+    else:
+        return "none"
