@@ -201,16 +201,17 @@ Labeling strategy: A PR is marked risky (`1`) if a revert commit, hotfix PR, or 
 
 ---
 
-##  Roadmap
+## 🗺️ Roadmap
 
 - [x] Project structure setup
-- [ ] GitHub API data collector
+- [x] Virtual environment setup
+- [x] Requirements.txt configured
+- [x] GitHub API data collector (in progress)
 - [ ] Feature engineering pipeline
 - [ ] Model training & evaluation
 - [ ] FastAPI prediction service
 - [ ] Frontend dashboard
 - [ ] Docker containerization
-
 ---
 
 ## 👤 Author
