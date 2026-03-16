@@ -201,7 +201,7 @@ Labeling strategy: A PR is marked risky (`1`) if a revert commit, hotfix PR, or 
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 - [x] Project structure setup
 - [x] Virtual environment setup
