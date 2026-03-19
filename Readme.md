@@ -1,4 +1,4 @@
-# 🔍 PR Merge Risk Predictor
+#  PR Merge Risk Predictor
 
 > A machine learning system that analyzes pull request metadata to estimate the probability that a code change will introduce defects after merging.
 
@@ -6,7 +6,7 @@ Built for engineering teams who want **automated, data-driven risk assessment** 
 
 ---
 
-## 🧠 What It Does
+##  What It Does
 
 Every pull request carries some level of risk. A large diff with one reviewer and no tests is very different from a small focused change reviewed by three senior engineers. This system quantifies that risk.
 
@@ -20,7 +20,7 @@ Given a pull request's metadata, the model returns:
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 ```
 GitHub Repository
        ↓
@@ -39,7 +39,7 @@ Frontend Dashboard
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 ```
 pr-risk-predictor/
 │
@@ -73,7 +73,7 @@ pr-risk-predictor/
 
 ---
 
-## ⚙️ Feature Set
+##  Feature Set
 
 ### Code Change Metrics
 | Feature | Description |
@@ -106,7 +106,7 @@ pr-risk-predictor/
 
 ---
 
-## 🎯 Target Variable
+##  Target Variable
 ```
 merge_risk → binary classification
   1 = PR caused issues after merge
@@ -116,7 +116,7 @@ merge_risk → binary classification
 
 ---
 
-## 📊 Dataset
+##  Dataset
 
 Collected via the **GitHub API** from large, active open-source repositories:
 
@@ -140,7 +140,7 @@ Clean PRs (0): ~68%
 
 ---
 
-## 🤖 Models Trained
+##  Models Trained
 
 | Model | Role |
 |---|---|
@@ -152,7 +152,7 @@ Evaluation metrics: `accuracy`, `precision`, `recall`, `F1-score`, `ROC-AUC`
 
 ---
 
-## 🚀 API Usage
+##  API Usage
 
 **Endpoint:** `POST /predict-pr-risk`
 
@@ -184,7 +184,7 @@ Evaluation metrics: `accuracy`, `precision`, `recall`, `F1-score`, `ROC-AUC`
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -197,7 +197,7 @@ Evaluation metrics: `accuracy`, `precision`, `recall`, `F1-score`, `ROC-AUC`
 
 ---
 
-## 🔐 Environment Setup
+##  Environment Setup
 
 Create a `.env` file in the root directory:
 ```
@@ -212,7 +212,7 @@ Required scopes: `repo`, `read:user`, `read:org`
 
 ---
 
-## 📦 Installation
+##  Installation
 ```bash
 # Clone the repository
 git clone https://github.com/tanishq-ds/PR-Merge-Risk-Predictor.git
@@ -229,7 +229,7 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ Running the Project
+##  Running the Project
 
 **Step 1 — Collect data:**
 ```bash
@@ -253,7 +253,7 @@ uvicorn src.api.main:app --reload
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 - [x] Project structure setup
 - [x] Virtual environment setup
