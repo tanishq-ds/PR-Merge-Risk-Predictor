@@ -19,6 +19,18 @@ REPOS = {
     "expressjs/express"
 }
 
+def safe_request(url, params = None, headers = HEADERS, timeout = 10, retries = 3):
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, params = params, headers=headers, timeout=timeout)
+            return response
+        except requests.exceptions.ConnectionError:
+            print(f"  ⚠️ Network error, retrying ({attempt + 1}/{retries})...")
+            time.sleep(5)
+    print(f"❌ Failed to fetch after {retries} : {url}")
+    return None
+
+
 def fetch_pull_requests(repo, max_prs=500):
     """
     Fetches merged pull requests from a given GitHub repository.
@@ -38,7 +50,9 @@ def fetch_pull_requests(repo, max_prs=500):
             "page": page
         }
 
-        response = requests.get(url, headers=HEADERS, params=params)
+        response = safe_request(url, params=params)
+        if response is None:
+            return []
 
         if response.status_code != 200:
             print(f"Error {response.status_code}: {response.json()}")
@@ -93,7 +107,9 @@ def fetch_pr_reviews(repo, pr_number):
     """
     
     url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/reviews"
-    response = requests.get(url, headers=HEADERS)
+    response = safe_request(url)
+    if response is None:
+        return []
     
     if response.status_code != 200:
         return {"approval_count": 0, "actual_reviewers": 0}
@@ -119,7 +135,9 @@ def fetch_ci_status(repo, pr):
     head_sha = pr["head"]["sha"]
     
     url = f"https://api.github.com/repos/{repo}/commits/{head_sha}/check-runs"
-    response = requests.get(url, headers=HEADERS)
+    response = safe_request(url)
+    if response is None:
+        return []
     
     if response.status_code != 200:
         return "none"
@@ -150,7 +168,9 @@ def fetch_developer_stats(repo, pr):
 
     url = f"https://api.github.com/repos/{repo}/commits"
     params = {"author": author, "per_page": 100}
-    response = requests.get(url, headers=HEADERS, params=params)
+    response = safe_request(url, params=params)
+    if response is None:
+        return []
     
     if response.status_code != 200:
         return {"developer_total_commits": 0, "previous_pr_failures": 0}
@@ -163,7 +183,9 @@ def fetch_developer_stats(repo, pr):
         "state": "closed",
         "per_page": 100
     }
-    response = requests.get(url, headers=HEADERS, params=params)
+    response = safe_request(url, params=params)
+    if response is None:
+        return []
     
     if response.status_code != 200:
         return {"developer_total_commits": developer_total_commits, "previous_pr_failures": 0}
@@ -192,7 +214,7 @@ def fetch_revert_commits(repo):
     
     url = f"https://api.github.com/repos/{repo}/commits"
     params = {"per_page": 100}
-    response = requests.get(url, headers=HEADERS, params=params, timeout=10)
+    response = safe_request(url, params=params)
     
     if response.status_code != 200:
         print(f"  Error fetching commits: {response.status_code}")
@@ -224,7 +246,9 @@ def fetch_hotfix_prs(repo):
     
     url = f"https://api.github.com/repos/{repo}/pulls"
     params = {"state": "all", "per_page": 100}
-    response = requests.get(url, headers=HEADERS, params=params, timeout=10)
+    response = safe_request(url,params=params)
+    if response is None:
+        return []
     
     if response.status_code != 200:
         print(f"  Error fetching PRs: {response.status_code}")
@@ -255,7 +279,8 @@ def fetch_bug_issues(repo):
     
     url = f"https://api.github.com/repos/{repo}/issues"
     params = {"state": "all", "per_page": 100, "labels": "bug"}
-    response = requests.get(url, headers=HEADERS, params=params, timeout=10)
+    response = safe_request(url, params=params)
+    
     
     if response.status_code != 200:
         print(f"  Error fetching issues: {response.status_code}")
