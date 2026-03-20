@@ -79,7 +79,17 @@ def extract_pr_features(pr, repo):
     Extracts relevant features from a single PR object.
     Returns a dictionary of features.
     """
-
+    url = f"https://api.github.com/repos/{repo}/pulls/{pr['number']}"
+    response = safe_request(url)
+    if response is None:
+        return []
+    
+    
+    if response and response.status_code == 200:
+        pr_detail = response.json()
+    else:
+        pr_detail = pr 
+        
     created_at = pd.to_datetime(pr["created_at"])
     merged_at = pd.to_datetime(pr["merged_at"])
     review_time_hours = (merged_at - created_at).total_seconds() / 3600
@@ -88,11 +98,11 @@ def extract_pr_features(pr, repo):
         "repo": repo,
         "pr_number": pr["number"],
         "title": pr["title"],
-        "lines_added": pr.get("additions", 0),
-        "lines_deleted": pr.get("deletions", 0),
-        "lines_changed": pr.get("additions", 0) + pr.get("deletions", 0),
-        "files_modified": pr.get("changed_files", 0),
-        "commit_count": pr.get("commits", 0),
+        "lines_added": pr_detail.get("additions", 0),
+        "lines_deleted": pr_detail.get("deletions", 0),
+        "lines_changed": pr_detail.get("additions", 0) + pr.get("deletions", 0),
+        "files_modified": pr_detail.get("changed_files", 0),
+        "commit_count": pr_detail.get("commits", 0),
         "review_comments": pr.get("review_comments", 0),
         "num_reviewers": len(pr.get("requested_reviewers", [])),
         "review_time_hours": round(review_time_hours, 2),
